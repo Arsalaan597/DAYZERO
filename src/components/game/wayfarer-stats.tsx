@@ -47,21 +47,21 @@ export function WayfarerStats({
         <div className="flex items-center gap-6">
           {/* Gold */}
           <div className="text-right">
-            <p className="font-display text-xs tracking-widest text-ash/70 uppercase">
+            <p className="font-display text-xs tracking-widest text-ash/90 uppercase">
               Gold
             </p>
             <p className="font-display text-sm tracking-wider text-gold">
-              {profile.gold} <span className="text-xs text-gold/70">G</span>
+              {profile.gold} <span className="text-xs text-gold/80">G</span>
             </p>
           </div>
 
           {/* Streak */}
           <div className="text-right">
-            <p className="font-display text-xs tracking-widest text-ash/70 uppercase">
+            <p className="font-display text-xs tracking-widest text-ash/90 uppercase">
               Streak
             </p>
             <p className="font-display text-sm tracking-wider text-ember">
-              {profile.streak} <span className="text-xs text-ember/70">DAYS</span>
+              {profile.streak} <span className="text-xs text-ember/80">DAYS</span>
             </p>
           </div>
         </div>
@@ -69,7 +69,7 @@ export function WayfarerStats({
 
       {/* XP Progress Bar */}
       <div className="mt-5">
-        <div className="mb-1.5 flex items-center justify-between text-xs tracking-widest text-ash/70 uppercase">
+        <div className="mb-1.5 flex items-center justify-between text-xs tracking-widest text-ash/90 uppercase">
           <span>XP Progress</span>
           <span>
             {levelInfo.currentLevelXp} / {levelInfo.xpForNextLevel} XP ({progressPercent}%)
@@ -85,76 +85,76 @@ export function WayfarerStats({
 
       {/* Five Attributes & Realm Status Grid (if attributes passed and not compact) */}
       {attributes && !compact && (
-        <div className="mt-6 border-t border-ash/10 pt-5">
-          <p className="mb-3 font-display text-xs tracking-[0.2em] text-ash/60 uppercase">
+        <div className="mt-6 border-t border-ash/15 pt-5">
+          <p className="mb-3 font-display text-xs tracking-[0.2em] text-ash/80 uppercase">
             Attunements & Realm Resonance
           </p>
           <div className="grid grid-cols-2 gap-2 sm:grid-cols-5">
             {/* Intellect */}
-            <div className="border border-ash/10 bg-stone/40 p-2.5">
+            <div className="border border-ash/15 bg-stone/40 p-2.5">
               <div className="flex items-center justify-between">
                 <span className="text-xs tracking-wider text-ash uppercase">Intellect</span>
                 <span className="font-display text-xs text-parchment">
                   {attributes.intellect}
                 </span>
               </div>
-              <p className="mt-1 text-[10px] tracking-wider text-ash/50 uppercase">
+              <p className="mt-1 text-[10px] tracking-wider text-ash/70 uppercase">
                 {REALMS.academy.name}
                 {realmProgress && ` · Lv ${realmProgress.academy_level}`}
               </p>
             </div>
 
             {/* Strength */}
-            <div className="border border-ash/10 bg-stone/40 p-2.5">
+            <div className="border border-ash/15 bg-stone/40 p-2.5">
               <div className="flex items-center justify-between">
                 <span className="text-xs tracking-wider text-ash uppercase">Strength</span>
                 <span className="font-display text-xs text-parchment">
                   {attributes.strength}
                 </span>
               </div>
-              <p className="mt-1 text-[10px] tracking-wider text-ash/50 uppercase">
+              <p className="mt-1 text-[10px] tracking-wider text-ash/70 uppercase">
                 {REALMS.wilds.name}
                 {realmProgress && ` · Lv ${realmProgress.wilds_level}`}
               </p>
             </div>
 
             {/* Discipline */}
-            <div className="border border-ash/10 bg-stone/40 p-2.5">
+            <div className="border border-ash/15 bg-stone/40 p-2.5">
               <div className="flex items-center justify-between">
                 <span className="text-xs tracking-wider text-ash uppercase">Discipline</span>
                 <span className="font-display text-xs text-parchment">
                   {attributes.discipline}
                 </span>
               </div>
-              <p className="mt-1 text-[10px] tracking-wider text-ash/50 uppercase">
+              <p className="mt-1 text-[10px] tracking-wider text-ash/70 uppercase">
                 {REALMS.forge.name}
                 {realmProgress && ` · Lv ${realmProgress.forge_level}`}
               </p>
             </div>
 
             {/* Wellness */}
-            <div className="border border-ash/10 bg-stone/40 p-2.5">
+            <div className="border border-ash/15 bg-stone/40 p-2.5">
               <div className="flex items-center justify-between">
                 <span className="text-xs tracking-wider text-ash uppercase">Wellness</span>
                 <span className="font-display text-xs text-parchment">
                   {attributes.wellness}
                 </span>
               </div>
-              <p className="mt-1 text-[10px] tracking-wider text-ash/50 uppercase">
+              <p className="mt-1 text-[10px] tracking-wider text-ash/70 uppercase">
                 {REALMS.sanctuary.name}
                 {realmProgress && ` · Lv ${realmProgress.sanctuary_level}`}
               </p>
             </div>
 
             {/* Creativity */}
-            <div className="border border-ash/10 bg-stone/40 p-2.5">
+            <div className="border border-ash/15 bg-stone/40 p-2.5">
               <div className="flex items-center justify-between">
                 <span className="text-xs tracking-wider text-ash uppercase">Creativity</span>
                 <span className="font-display text-xs text-parchment">
                   {attributes.creativity}
                 </span>
               </div>
-              <p className="mt-1 text-[10px] tracking-wider text-ash/50 uppercase">
+              <p className="mt-1 text-[10px] tracking-wider text-ash/70 uppercase">
                 {REALMS.atelier.name}
                 {realmProgress && ` · Lv ${realmProgress.atelier_level}`}
               </p>

@@ -56,6 +56,62 @@ body {
 }
 
 /* ------------------------------------------------------------------ */
+/* Atmospheric & Game Animations                                      */
+/* ------------------------------------------------------------------ */
+
+@keyframes ash-drift {
+  0% {
+    transform: translateY(0) translateX(0) scale(0.8);
+    opacity: 0;
+  }
+  20% {
+    opacity: 0.7;
+  }
+  80% {
+    opacity: 0.5;
+  }
+  100% {
+    transform: translateY(-280px) translateX(35px) scale(1.1);
+    opacity: 0;
+  }
+}
+
+.dayzero-ash {
+  animation: ash-drift 16s cubic-bezier(0.25, 1, 0.5, 1) infinite;
+}
+
+@keyframes flame-pulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 0.92;
+  }
+  50% {
+    transform: scale(1.05);
+    opacity: 1;
+  }
+}
+
+@keyframes flame-sway {
+  0%, 100% {
+    transform: rotate(-1.5deg) scaleY(0.98);
+  }
+  50% {
+    transform: rotate(1.5deg) scaleY(1.02);
+  }
+}
+
+@keyframes realm-beacon-pulse {
+  0%, 100% {
+    opacity: 0.4;
+    transform: scale(0.98);
+  }
+  50% {
+    opacity: 0.85;
+    transform: scale(1.02);
+  }
+}
+
+/* ------------------------------------------------------------------ */
 /* Reduced motion preference                                           */
 /* ------------------------------------------------------------------ */
 
@@ -67,5 +123,8 @@ body {
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
+  }
+  .dayzero-ash {
+    display: none !important;
   }
 }

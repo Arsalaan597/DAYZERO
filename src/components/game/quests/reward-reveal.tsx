@@ -3,11 +3,19 @@
 // ---------------------------------------------------------------------------
 // DAYZERO – Quest Reward Reveal Modal
 // ---------------------------------------------------------------------------
+// Upgraded completion sequence:
+// 0.2s: Reveal opens with ancient stone aesthetics
+// 0.5s: Corresponding Realm node resonance indicator pulses
+// 0.8s: Zeroflame flares with renewed momentum
+// Conditional: REALM AWAKENED and LEVEL ASCENDED moments
+// Usable within 1.5–2.5s, always dismissible, no particle spam.
+// ---------------------------------------------------------------------------
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { REALMS } from '@/config/game';
 import { Button } from '@/components/ui/button';
+import { Zeroflame } from '@/components/game/realm/zeroflame';
 import type { QuestCompletionResult } from '@/types/game';
 
 interface RewardRevealProps {
@@ -16,6 +24,39 @@ interface RewardRevealProps {
 }
 
 export function RewardReveal({ result, onDismiss }: RewardRevealProps) {
+  if (!result) return null;
+
+  return <RewardRevealContent key={result.questId} result={result} onDismiss={onDismiss} />;
+}
+
+function RewardRevealContent({
+  result,
+  onDismiss,
+}: {
+  result: QuestCompletionResult;
+  onDismiss: () => void;
+}) {
+  const [realmPulsed, setRealmPulsed] = useState(false);
+  const [flameFlared, setFlameFlared] = useState(false);
+
+  // Trigger sequence timings
+  useEffect(() => {
+    // 0.5s: Realm pulse
+    const realmTimer = setTimeout(() => {
+      setRealmPulsed(true);
+    }, 500);
+
+    // 0.8s: Zeroflame flare
+    const flameTimer = setTimeout(() => {
+      setFlameFlared(true);
+    }, 800);
+
+    return () => {
+      clearTimeout(realmTimer);
+      clearTimeout(flameTimer);
+    };
+  }, []);
+
   // Allow Esc key to dismiss
   useEffect(() => {
     function handleKeyDown(e: KeyboardEvent) {
@@ -23,13 +64,9 @@ export function RewardReveal({ result, onDismiss }: RewardRevealProps) {
         onDismiss();
       }
     }
-    if (result) {
-      window.addEventListener('keydown', handleKeyDown);
-    }
+    window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [result, onDismiss]);
-
-  if (!result) return null;
+  }, [onDismiss]);
 
   const realmInfo = REALMS[result.realm];
 
@@ -43,87 +80,133 @@ export function RewardReveal({ result, onDismiss }: RewardRevealProps) {
         onClick={onDismiss}
       >
         <motion.div
-          initial={{ opacity: 0, scale: 0.95, y: 10 }}
+          initial={{ opacity: 0, scale: 0.94, y: 14 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
-          exit={{ opacity: 0, scale: 0.95, y: 10 }}
-          transition={{ duration: 0.25, ease: 'easeOut' }}
-          className="w-full max-w-md border border-ash/20 bg-obsidian p-8 text-center shadow-2xl"
+          exit={{ opacity: 0, scale: 0.94, y: 14 }}
+          transition={{ duration: 0.22, ease: 'easeOut', delay: 0.1 }}
+          className="relative w-full max-w-md border border-ash/25 bg-obsidian p-6 sm:p-8 text-center shadow-2xl"
           onClick={(e) => e.stopPropagation()}
         >
-          {/* Ancient geometric emblem */}
-          <div className="mx-auto mb-4 flex h-10 w-10 items-center justify-center border border-ember/50 bg-stone/60">
-            <span className="text-sm text-ember" aria-hidden="true">
-              ◆
-            </span>
+          {/* Corner accents */}
+          <span className="pointer-events-none absolute top-2 left-2 text-[9px] text-ash/40">╔</span>
+          <span className="pointer-events-none absolute top-2 right-2 text-[9px] text-ash/40">╗</span>
+          <span className="pointer-events-none absolute bottom-2 left-2 text-[9px] text-ash/40">╚</span>
+          <span className="pointer-events-none absolute bottom-2 right-2 text-[9px] text-ash/40">╝</span>
+
+          {/* Central Heartbeat: Flaring Zeroflame */}
+          <div className="mx-auto mb-3 flex flex-col items-center justify-center">
+            <Zeroflame streak={result.newStreak} size="sm" flare={flameFlared} />
           </div>
 
-          {/* Title */}
-          <p className="text-xs tracking-[0.25em] text-ash uppercase">Ritual Fulfilled</p>
+          {/* Title Header */}
+          <p className="font-display text-[10px] tracking-[0.3em] text-ember uppercase">
+            Vow Fulfilled
+          </p>
           <h2
             id="reward-title"
-            className="mt-1 font-display text-2xl tracking-widest text-parchment uppercase"
+            className="mt-0.5 font-display text-xl sm:text-2xl tracking-widest text-parchment uppercase"
           >
             Quest Complete
           </h2>
 
-          {/* Level Ascension Announcement */}
+          {/* ---------------------------------------------------------------- */}
+          {/* Conditional 1: Level Ascension Moment                             */}
+          {/* ---------------------------------------------------------------- */}
           {result.leveledUp && (
-            <div className="my-5 border border-gold/30 bg-gold/5 p-3.5">
-              <p className="text-xs tracking-[0.25em] text-gold uppercase">
-                Level Ascended
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.35, duration: 0.3 }}
+              className="my-4 border border-gold/50 bg-gold/10 p-3"
+            >
+              <p className="font-display text-xs tracking-[0.25em] text-gold uppercase">
+                ✦ Level Ascended ✦
               </p>
-              <p className="mt-1 font-display text-lg tracking-wider text-parchment">
-                Level {result.newLevel} Wayfarer
+              <p className="mt-1 font-display text-base tracking-wider text-parchment">
+                Wayfarer Tier: Level {result.newLevel}
               </p>
-            </div>
+            </motion.div>
           )}
 
-          {/* Realm Awakening Announcement */}
+          {/* ---------------------------------------------------------------- */}
+          {/* Conditional 2: Realm Awakening Moment                            */}
+          {/* ---------------------------------------------------------------- */}
           {result.realmLeveledUp && (
-            <div className="my-5 border border-ember/30 bg-ember/5 p-3.5">
-              <p className="text-xs tracking-[0.25em] text-ember uppercase">
-                {realmInfo?.name ?? 'Realm'} Awakening
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.45, duration: 0.3 }}
+              className="my-4 border border-ember/60 bg-ember/10 p-3"
+            >
+              <p className="font-display text-xs tracking-[0.25em] text-ember uppercase">
+                ✦ Realm Awakened ✦
               </p>
               <p className="mt-1 font-display text-sm tracking-wider text-parchment">
-                Resonance Tier {result.newRealmLevel} Reached
+                {realmInfo?.name} Reached Tier {result.newRealmLevel}
               </p>
-            </div>
+            </motion.div>
           )}
 
-          {/* Reward Gains Grid */}
-          <div className="my-6 grid grid-cols-3 gap-3 border-y border-ash/15 py-4">
-            {/* XP Gained */}
-            <div>
-              <p className="text-[10px] tracking-widest text-ash uppercase">Experience</p>
-              <p className="mt-1 font-display text-lg text-ember">+{result.xpGained} XP</p>
+          {/* ---------------------------------------------------------------- */}
+          {/* Realm Node Resonance Reaction (0.5s Pulse)                       */}
+          {/* ---------------------------------------------------------------- */}
+          <motion.div
+            animate={{
+              borderColor: realmPulsed ? '#D97732' : 'rgba(139, 141, 135, 0.2)',
+              backgroundColor: realmPulsed ? 'rgba(217, 119, 50, 0.08)' : 'rgba(27, 30, 28, 0.5)',
+            }}
+            transition={{ duration: 0.4 }}
+            className="my-4 flex items-center justify-between border px-4 py-2 text-xs"
+          >
+            <div className="flex items-center gap-2">
+              <span className={realmPulsed ? 'text-ember' : 'text-ash/60'}>◆</span>
+              <span className="font-display tracking-wider text-parchment uppercase">
+                {realmInfo?.name} Resonance
+              </span>
             </div>
+            <span className="font-display text-ember">
+              +{result.attributeGained} {result.attribute}
+            </span>
+          </motion.div>
 
-            {/* Gold Gained */}
+          {/* ---------------------------------------------------------------- */}
+          {/* Reward Gains Breakdown                                           */}
+          {/* ---------------------------------------------------------------- */}
+          <div className="my-5 grid grid-cols-3 gap-2 border-y border-ash/15 py-3.5">
+            {/* XP */}
             <div>
-              <p className="text-[10px] tracking-widest text-ash uppercase">Tribute</p>
-              <p className="mt-1 font-display text-lg text-gold">+{result.goldGained} G</p>
-            </div>
-
-            {/* Attribute Gained */}
-            <div>
-              <p className="text-[10px] tracking-widest text-ash uppercase">
-                {result.attribute}
+              <p className="text-[9px] tracking-widest text-ash/80 uppercase">Experience</p>
+              <p className="mt-0.5 font-display text-base sm:text-lg text-ember">
+                +{result.xpGained} XP
               </p>
-              <p className="mt-1 font-display text-lg text-parchment">
-                +{result.attributeGained}
+            </div>
+
+            {/* Tribute / Gold */}
+            <div>
+              <p className="text-[9px] tracking-widest text-ash/80 uppercase">Tribute</p>
+              <p className="mt-0.5 font-display text-base sm:text-lg text-gold">
+                +{result.goldGained} G
+              </p>
+            </div>
+
+            {/* Streak */}
+            <div>
+              <p className="text-[9px] tracking-widest text-ash/80 uppercase">Flame Streak</p>
+              <p className="mt-0.5 font-display text-base sm:text-lg text-parchment">
+                {result.newStreak}d
               </p>
             </div>
           </div>
 
           {/* New Totals Row */}
-          <div className="mb-6 flex justify-around text-xs tracking-wider text-ash/60">
+          <div className="mb-5 flex justify-around text-[11px] tracking-wider text-ash/80">
             <span>Total XP: {result.totalXp}</span>
-            <span>Gold: {result.newGold}</span>
-            <span>Streak: {result.newStreak}d</span>
+            <span>Vault: {result.newGold} G</span>
+            <span>Level: {result.newLevel}</span>
           </div>
 
           {/* Dismiss CTA */}
-          <Button variant="primary" className="w-full" onClick={onDismiss}>
+          <Button variant="primary" className="w-full text-xs py-2.5" onClick={onDismiss}>
             Accept & Continue
           </Button>
         </motion.div>

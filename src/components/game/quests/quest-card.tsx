@@ -8,6 +8,7 @@ import { useState } from 'react';
 import { ATTRIBUTE_REALM_MAP, DIFFICULTIES, REALMS } from '@/config/game';
 import { Button } from '@/components/ui/button';
 import { deleteQuestAction } from '@/lib/actions/quests';
+import { formatDeterministicDate } from '@/lib/game/dates';
 import type { Quest } from '@/types/game';
 
 interface QuestCardProps {
@@ -42,8 +43,10 @@ export function QuestCard({
   return (
     <article
       className={[
-        'border p-5 transition-colors duration-200',
-        isCompleted
+        'border p-5 transition-all duration-300',
+        isCompleting
+          ? 'scale-[0.98] opacity-40 border-ember/30 bg-obsidian/40'
+          : isCompleted
           ? 'border-ash/10 bg-obsidian/30 opacity-75'
           : 'border-ash/20 bg-obsidian/60 hover:border-ash/40',
       ].join(' ')}
@@ -80,14 +83,14 @@ export function QuestCard({
         <h3
           className={[
             'font-display text-base tracking-wide text-parchment',
-            isCompleted ? 'line-through text-ash/60' : '',
+            isCompleted ? 'line-through text-ash/80' : '',
           ].join(' ')}
         >
           {quest.title}
         </h3>
 
         {quest.description && (
-          <p className="mt-2 text-xs leading-relaxed text-ash/70">
+          <p className="mt-2 text-xs leading-relaxed text-ash/90">
             {quest.description}
           </p>
         )}
@@ -96,16 +99,10 @@ export function QuestCard({
       {/* Footer / Actions */}
       <div className="flex flex-wrap items-center justify-between gap-3 border-t border-ash/10 pt-3">
         {isCompleted ? (
-          <div className="flex items-center gap-2 text-xs text-ash/50">
+          <div className="flex items-center gap-2 text-xs text-ash/80">
             <span className="text-ember">✓</span>
             <span>
-              Fulfilled{' '}
-              {quest.completedAt
-                ? new Date(quest.completedAt).toLocaleDateString(undefined, {
-                    month: 'short',
-                    day: 'numeric',
-                  })
-                : ''}
+              Fulfilled {formatDeterministicDate(quest.completedAt, false)}
             </span>
           </div>
         ) : (
@@ -127,16 +124,16 @@ export function QuestCard({
               type="button"
               onClick={() => onEdit(quest)}
               disabled={isCompleting}
-              className="text-ash/60 tracking-wider uppercase transition-colors hover:text-parchment focus-visible:outline-2 focus-visible:outline-ember"
+              className="text-ash/80 tracking-wider uppercase transition-colors hover:text-parchment focus-visible:outline-2 focus-visible:outline-ember"
             >
               Edit
             </button>
-            <span className="text-ash/20">|</span>
+            <span className="text-ash/30">|</span>
             <button
               type="button"
               onClick={() => setShowDeleteConfirm(true)}
               disabled={isCompleting}
-              className="text-ash/60 tracking-wider uppercase transition-colors hover:text-danger focus-visible:outline-2 focus-visible:outline-danger"
+              className="text-ash/80 tracking-wider uppercase transition-colors hover:text-danger focus-visible:outline-2 focus-visible:outline-danger"
             >
               Abandon
             </button>
@@ -146,7 +143,7 @@ export function QuestCard({
         {/* Delete Confirmation prompt */}
         {showDeleteConfirm && (
           <div className="flex items-center gap-2 text-xs">
-            <span className="text-ash/60">Abandon vow?</span>
+            <span className="text-ash/80">Abandon vow?</span>
             <button
               type="button"
               onClick={handleDelete}
@@ -159,7 +156,7 @@ export function QuestCard({
               type="button"
               onClick={() => setShowDeleteConfirm(false)}
               disabled={isDeleting}
-              className="text-ash hover:text-parchment"
+              className="text-ash/90 hover:text-parchment"
             >
               No
             </button>
@@ -171,7 +168,7 @@ export function QuestCard({
           <button
             type="button"
             onClick={() => setShowDeleteConfirm(true)}
-            className="text-[11px] text-ash/40 tracking-wider uppercase transition-colors hover:text-danger"
+            className="text-[11px] text-ash/70 tracking-wider uppercase transition-colors hover:text-danger"
           >
             Remove Inscription
           </button>

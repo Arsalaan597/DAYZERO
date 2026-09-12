@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
+import { RealmMap } from '@/components/game/realm/realm-map';
 import { WayfarerStats } from '@/components/game/wayfarer-stats';
 import { Button } from '@/components/ui/button';
 import { createClient } from '@/lib/supabase/server';
@@ -47,51 +48,45 @@ export default async function GamePage() {
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-8 pb-16">
-      {/* Wayfarer Vitals & Attributes */}
-      <section className="mb-10">
+      {/* Wayfarer Vitals Bar */}
+      <section className="mb-8">
         <WayfarerStats
           profile={safeProfile}
           attributes={attributes}
           realmProgress={realmProgress}
+          compact
         />
       </section>
 
-      {/* Realm overview banner */}
-      <section
-        className="border border-ash/15 bg-obsidian/40 px-8 py-12 text-center"
-        aria-label="Realm overview"
-      >
-        <p className="font-display text-xs tracking-[0.25em] text-ember uppercase">
-          World Resonance
-        </p>
-        <h2 className="mt-2 font-display text-2xl tracking-wider text-parchment uppercase sm:text-3xl">
-          The Dormant World
-        </h2>
-        <p className="mx-auto mt-3 max-w-lg text-xs leading-relaxed text-ash/70">
-          The world has been frozen since DAYZERO. Real-world vows inscribe your path
-          and channel resonance into the five ancestral realms.
-        </p>
-        <div className="mt-6 flex justify-center gap-4">
+      {/* Dominant Visual Element: The Ancestral Realm Map */}
+      <section className="mb-10" aria-label="Ancestral Realm Visualization">
+        <RealmMap
+          realmProgress={realmProgress}
+          attributes={attributes}
+          streak={safeProfile.streak}
+          lastActiveDate={safeProfile.last_active_date}
+        />
+        <div className="mt-4 flex flex-wrap items-center justify-center gap-4">
           <Link href="/game/quests">
             <Button variant="primary">Enter Quest Board</Button>
           </Link>
           <Link href="/game/wayfarer">
-            <Button variant="secondary">Wayfarer Chronicle</Button>
+            <Button variant="secondary">Wayfarer Record</Button>
           </Link>
         </div>
       </section>
 
       {/* Active Quests Preview Section */}
       <section className="mt-10">
-        <div className="mb-4 flex items-center justify-between border-b border-ash/10 pb-2">
+        <div className="mb-4 flex items-center justify-between border-b border-ash/15 pb-2">
           <h3 className="font-display text-xs tracking-[0.2em] text-ash uppercase">
-            Active Vows ({activeQuests.length})
+            Active Inscriptions ({activeQuests.length})
           </h3>
           <Link
             href="/game/quests"
-            className="text-xs text-ash/60 transition-colors hover:text-parchment"
+            className="text-xs text-ash/80 transition-colors hover:text-parchment"
           >
-            View All →
+            View All Vows →
           </Link>
         </div>
 
@@ -100,17 +95,17 @@ export default async function GamePage() {
             {activeQuests.map((q) => (
               <div
                 key={q.id}
-                className="border border-ash/15 bg-obsidian/50 p-4 transition-colors hover:border-ash/30"
+                className="border border-ash/15 bg-obsidian/70 p-4 transition-colors hover:border-ash/30"
               >
-                <div className="flex items-center justify-between text-[10px] tracking-wider text-ash/60 uppercase">
+                <div className="flex items-center justify-between text-[10px] tracking-wider text-ash/80 uppercase">
                   <span>{q.attribute}</span>
-                  <span className="text-ember">+{q.xp_reward} XP</span>
+                  <span className="text-ember font-display">+{q.xp_reward} XP</span>
                 </div>
                 <h4 className="mt-2 font-display text-sm text-parchment line-clamp-1">
                   {q.title}
                 </h4>
                 {q.description && (
-                  <p className="mt-1 text-[11px] text-ash/60 line-clamp-2">
+                  <p className="mt-1 text-[11px] text-ash/80 line-clamp-2">
                     {q.description}
                   </p>
                 )}
@@ -118,8 +113,8 @@ export default async function GamePage() {
             ))}
           </div>
         ) : (
-          <div className="border border-dashed border-ash/10 bg-obsidian/20 p-8 text-center">
-            <p className="text-xs text-ash/50">No vows currently inscribed.</p>
+          <div className="border border-dashed border-ash/15 bg-obsidian/30 p-8 text-center">
+            <p className="text-xs text-ash/70">No vows currently inscribed.</p>
             <Link href="/game/quests" className="mt-3 inline-block">
               <Button variant="ghost" className="text-xs">
                 + Inscribe First Quest
