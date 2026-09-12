@@ -18,8 +18,14 @@ export type Realm =
   | 'sanctuary'
   | 'atelier';
 
-/** Quest difficulty tiers. */
+/** Quest difficulty tiers (backward-compatible). */
 export type Difficulty = 'easy' | 'medium' | 'hard';
+
+/** Phase 5: Effort tiers */
+export type Effort = 'light' | 'standard' | 'deep';
+
+/** Phase 5: Challenge bonus tiers */
+export type Challenge = 'routine' | 'challenging' | 'hard';
 
 // ---------------------------------------------------------------------------
 // Descriptive / UI types
@@ -50,6 +56,7 @@ export interface PlayerProfile {
   gold: number;
   streak: number;
   lastActiveDate: string | null;
+  timezone: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -83,8 +90,71 @@ export interface Quest {
   goldReward: number;
   completed: boolean;
   completedAt: string | null;
+  scheduledDate: string | null;
+  scheduledStartTime: string | null;
+  estimatedMinutes: number | null;
+  effort: Effort | null;
+  challenge: Challenge | null;
+  isMainQuest: boolean;
   createdAt: string;
   updatedAt: string;
+}
+
+export interface Routine {
+  id: string;
+  userId: string;
+  title: string;
+  description: string | null;
+  attribute: Attribute;
+  daysOfWeek: number[]; // 0 = Sun, 1 = Mon, ..., 6 = Sat
+  startTime: string | null;
+  estimatedMinutes: number | null;
+  effort: Effort;
+  challenge: Challenge;
+  startsOn: string;
+  endsOn: string | null;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface RoutineInstance {
+  id: string;
+  routineId: string;
+  userId: string;
+  localDate: string;
+  titleSnapshot: string;
+  attributeSnapshot: Attribute;
+  effortSnapshot: Effort;
+  challengeSnapshot: Challenge;
+  scheduledStartTime: string | null;
+  estimatedMinutesSnapshot: number | null;
+  status: 'scheduled' | 'completed' | 'skipped' | 'missed';
+  completedAt: string | null;
+  xpAwarded: number;
+  goldAwarded: number;
+  attributeAwarded: number;
+  createdAt: string;
+}
+
+/** Unified Today item normalized for presentation */
+export interface TodayActivity {
+  id: string;
+  type: 'routine' | 'quest';
+  title: string;
+  description?: string | null;
+  attribute: Attribute;
+  time: string | null; // e.g. "07:00"
+  estimatedMinutes: number | null;
+  effort: Effort;
+  challenge: Challenge;
+  isMainQuest: boolean;
+  isCompleted: boolean;
+  completedAt: string | null;
+  expectedXp: number;
+  expectedGold: number;
+  sourceInstanceId?: string; // For routines
+  sourceQuestId?: string; // For quests
 }
 
 export interface InventoryItem {
@@ -110,7 +180,7 @@ export interface LevelInfo {
 }
 
 // ---------------------------------------------------------------------------
-// Phase 2: Completion & Action Result Types
+// Completion & Action Result Types
 // ---------------------------------------------------------------------------
 
 export interface QuestCompletionResult {
@@ -137,7 +207,13 @@ export interface CreateQuestInput {
   title: string;
   description?: string | null;
   attribute: Attribute;
-  difficulty: Difficulty;
+  difficulty?: Difficulty;
+  scheduledDate?: string | null;
+  scheduledStartTime?: string | null;
+  estimatedMinutes?: number | null;
+  effort?: Effort | null;
+  challenge?: Challenge | null;
+  isMainQuest?: boolean;
 }
 
 export interface UpdateQuestInput {
@@ -145,6 +221,39 @@ export interface UpdateQuestInput {
   title: string;
   description?: string | null;
   attribute: Attribute;
-  difficulty: Difficulty;
+  difficulty?: Difficulty;
+  scheduledDate?: string | null;
+  scheduledStartTime?: string | null;
+  estimatedMinutes?: number | null;
+  effort?: Effort | null;
+  challenge?: Challenge | null;
+  isMainQuest?: boolean;
 }
 
+export interface CreateRoutineInput {
+  title: string;
+  description?: string | null;
+  attribute: Attribute;
+  daysOfWeek: number[];
+  startTime?: string | null;
+  estimatedMinutes?: number | null;
+  effort: Effort;
+  challenge: Challenge;
+  startsOn?: string;
+  endsOn?: string | null;
+}
+
+export interface UpdateRoutineInput {
+  id: string;
+  title: string;
+  description?: string | null;
+  attribute: Attribute;
+  daysOfWeek: number[];
+  startTime?: string | null;
+  estimatedMinutes?: number | null;
+  effort: Effort;
+  challenge: Challenge;
+  startsOn?: string;
+  endsOn?: string | null;
+  isActive?: boolean;
+}

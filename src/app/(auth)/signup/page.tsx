@@ -29,6 +29,7 @@ export default function SignupPage() {
       options: {
         data: {
           display_name: displayName,
+          timezone: Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC',
         },
       },
     });
@@ -39,7 +40,7 @@ export default function SignupPage() {
       return;
     }
 
-    router.push('/game');
+    router.push('/game/today');
     router.refresh();
   }
 

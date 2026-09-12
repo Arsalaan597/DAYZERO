@@ -49,6 +49,7 @@ export default async function QuestsPage() {
     gold: 0,
     streak: 0,
     last_active_date: null,
+    timezone: 'UTC',
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
   };
@@ -65,6 +66,12 @@ export default async function QuestsPage() {
     goldReward: row.gold_reward,
     completed: row.completed,
     completedAt: row.completed_at,
+    scheduledDate: row.scheduled_date,
+    scheduledStartTime: row.scheduled_start_time,
+    estimatedMinutes: row.estimated_minutes,
+    effort: row.effort,
+    challenge: row.challenge,
+    isMainQuest: row.is_main_quest,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
   }));

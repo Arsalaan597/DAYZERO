@@ -32,8 +32,10 @@ export function Atmosphere() {
 
       {/* 3. Faint Ancient Cartographic & Geometric Linework */}
       <svg
-        className="absolute inset-0 h-full w-full stroke-ash/5"
+        className="absolute inset-0 h-full w-full stroke-ash/5 overflow-hidden pointer-events-none"
         fill="none"
+        overflow="hidden"
+        style={{ overflow: 'hidden' }}
         xmlns="http://www.w3.org/2000/svg"
       >
         <defs>

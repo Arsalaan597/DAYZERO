@@ -15,6 +15,7 @@ export interface ProfileRow {
   gold: number;
   streak: number;
   last_active_date: string | null;
+  timezone: string;
   created_at: string;
   updated_at: string;
 }
@@ -30,8 +31,51 @@ export interface QuestRow {
   gold_reward: number;
   completed: boolean;
   completed_at: string | null;
+  scheduled_date: string | null;
+  scheduled_start_time: string | null;
+  estimated_minutes: number | null;
+  effort: 'light' | 'standard' | 'deep' | null;
+  challenge: 'routine' | 'challenging' | 'hard' | null;
+  is_main_quest: boolean;
   created_at: string;
   updated_at: string;
+}
+
+export interface RoutineRow {
+  id: string;
+  user_id: string;
+  title: string;
+  description: string | null;
+  attribute: 'intellect' | 'strength' | 'discipline' | 'wellness' | 'creativity';
+  days_of_week: number[];
+  start_time: string | null;
+  estimated_minutes: number | null;
+  effort: 'light' | 'standard' | 'deep';
+  challenge: 'routine' | 'challenging' | 'hard';
+  starts_on: string;
+  ends_on: string | null;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface RoutineInstanceRow {
+  id: string;
+  routine_id: string;
+  user_id: string;
+  local_date: string;
+  title_snapshot: string;
+  attribute_snapshot: 'intellect' | 'strength' | 'discipline' | 'wellness' | 'creativity';
+  effort_snapshot: 'light' | 'standard' | 'deep';
+  challenge_snapshot: 'routine' | 'challenging' | 'hard';
+  scheduled_start_time: string | null;
+  estimated_minutes_snapshot: number | null;
+  status: 'scheduled' | 'completed' | 'skipped' | 'missed';
+  completed_at: string | null;
+  xp_awarded: number;
+  gold_awarded: number;
+  attribute_awarded: number;
+  created_at: string;
 }
 
 export interface AttributesRow {
@@ -78,4 +122,3 @@ export interface CompleteQuestRpcRow {
   new_realm_level: number;
   realm_leveled_up: boolean;
 }
-

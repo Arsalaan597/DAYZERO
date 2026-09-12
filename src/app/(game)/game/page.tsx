@@ -42,6 +42,7 @@ export default async function GamePage() {
     gold: 0,
     streak: 0,
     last_active_date: null,
+    timezone: 'UTC',
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
   };
@@ -66,12 +67,18 @@ export default async function GamePage() {
           streak={safeProfile.streak}
           lastActiveDate={safeProfile.last_active_date}
         />
-        <div className="mt-4 flex flex-wrap items-center justify-center gap-4">
+        <div className="mt-4 flex flex-wrap items-center justify-center gap-3 sm:gap-4">
+          <Link href="/game/today">
+            <Button variant="primary">Enter Today&apos;s Run</Button>
+          </Link>
+          <Link href="/game/week">
+            <Button variant="secondary">Plan Week</Button>
+          </Link>
           <Link href="/game/quests">
-            <Button variant="primary">Enter Quest Board</Button>
+            <Button variant="ghost">Quest Board</Button>
           </Link>
           <Link href="/game/wayfarer">
-            <Button variant="secondary">Wayfarer Record</Button>
+            <Button variant="ghost">Wayfarer Record</Button>
           </Link>
         </div>
       </section>

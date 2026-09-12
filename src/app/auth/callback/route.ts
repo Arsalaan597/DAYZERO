@@ -11,11 +11,11 @@ import { createClient } from '@/lib/supabase/server';
  * and malformed paths. Defaults to '/game'.
  */
 function getSafeRedirectPath(target: string | null): string {
-  if (!target) return '/game';
+  if (!target) return '/game/today';
 
   // Must begin with a single slash and not double-slash or backslash
   if (!target.startsWith('/') || target.startsWith('//') || target.startsWith('/\\')) {
-    return '/game';
+    return '/game/today';
   }
 
   try {

@@ -9,7 +9,11 @@ import { createClient } from '@/lib/supabase/server';
 import type {
   Attribute,
   Difficulty,
+  Effort,
+  Challenge,
   QuestCompletionResult,
+  CreateQuestInput,
+  UpdateQuestInput,
 } from '@/types/game';
 import type { CompleteQuestRpcRow, QuestRow } from '@/types/database';
 
@@ -22,6 +26,8 @@ const VALID_ATTRIBUTES: readonly Attribute[] = [
 ];
 
 const VALID_DIFFICULTIES: readonly Difficulty[] = ['easy', 'medium', 'hard'];
+const VALID_EFFORTS: readonly Effort[] = ['light', 'standard', 'deep'];
+const VALID_CHALLENGES: readonly Challenge[] = ['routine', 'challenging', 'hard'];
 
 export interface ActionResult<T = unknown> {
   success: boolean;
@@ -37,7 +43,9 @@ function validateQuestInput(params: {
   title: string;
   description?: string | null;
   attribute: string;
-  difficulty: string;
+  difficulty?: string;
+  effort?: string | null;
+  challenge?: string | null;
 }): {
   isValid: boolean;
   error?: string;
@@ -46,6 +54,8 @@ function validateQuestInput(params: {
     description: string | null;
     attribute: Attribute;
     difficulty: Difficulty;
+    effort: Effort | null;
+    challenge: Challenge | null;
   };
 } {
   const trimmedTitle = (params.title ?? '').trim();
@@ -65,8 +75,20 @@ function validateQuestInput(params: {
     return { isValid: false, error: 'Invalid attribute chosen.' };
   }
 
-  if (!VALID_DIFFICULTIES.includes(params.difficulty as Difficulty)) {
+  // Difficulty defaults to medium if not given
+  const diff = (params.difficulty || 'medium') as Difficulty;
+  if (!VALID_DIFFICULTIES.includes(diff)) {
     return { isValid: false, error: 'Invalid difficulty tier selected.' };
+  }
+
+  const eff = params.effort ? (params.effort as Effort) : null;
+  if (eff && !VALID_EFFORTS.includes(eff)) {
+    return { isValid: false, error: 'Invalid effort tier selected.' };
+  }
+
+  const chal = params.challenge ? (params.challenge as Challenge) : null;
+  if (chal && !VALID_CHALLENGES.includes(chal)) {
+    return { isValid: false, error: 'Invalid challenge tier selected.' };
   }
 
   return {
@@ -75,7 +97,9 @@ function validateQuestInput(params: {
       title: trimmedTitle,
       description: trimmedDesc || null,
       attribute: params.attribute as Attribute,
-      difficulty: params.difficulty as Difficulty,
+      difficulty: diff,
+      effort: eff,
+      challenge: chal,
     },
   };
 }
@@ -84,12 +108,9 @@ function validateQuestInput(params: {
 // CREATE QUEST ACTION
 // ---------------------------------------------------------------------------
 
-export async function createQuestAction(formData: {
-  title: string;
-  description?: string | null;
-  attribute: string;
-  difficulty: string;
-}): Promise<ActionResult<QuestRow>> {
+export async function createQuestAction(
+  formData: CreateQuestInput
+): Promise<ActionResult<QuestRow>> {
   const supabase = await createClient();
   const {
     data: { user },
@@ -99,14 +120,23 @@ export async function createQuestAction(formData: {
     return { success: false, error: 'Unauthenticated. Please sign in.' };
   }
 
-  const validation = validateQuestInput(formData);
+  const validation = validateQuestInput({
+    title: formData.title,
+    description: formData.description,
+    attribute: formData.attribute,
+    difficulty: formData.difficulty,
+    effort: formData.effort,
+    challenge: formData.challenge,
+  });
+
   if (!validation.isValid || !validation.sanitized) {
     return { success: false, error: validation.error };
   }
 
-  const { title, description, attribute, difficulty } = validation.sanitized;
+  const { title, description, attribute, difficulty, effort, challenge } =
+    validation.sanitized;
 
-  // Insert only safe, client-allowed columns.
+  // Insert client-allowed columns.
   // xp_reward, gold_reward, completed, completed_at are database-controlled.
   const { data, error } = await supabase
     .from('quests')
@@ -116,6 +146,15 @@ export async function createQuestAction(formData: {
       description,
       attribute,
       difficulty,
+      effort,
+      challenge,
+      scheduled_date: formData.scheduledDate || null,
+      scheduled_start_time: formData.scheduledStartTime || null,
+      estimated_minutes:
+        formData.estimatedMinutes && formData.estimatedMinutes > 0
+          ? formData.estimatedMinutes
+          : null,
+      is_main_quest: Boolean(formData.isMainQuest && formData.scheduledDate),
     })
     .select()
     .single();
@@ -125,6 +164,8 @@ export async function createQuestAction(formData: {
   }
 
   revalidatePath('/game/quests');
+  revalidatePath('/game/today');
+  revalidatePath('/game/week');
   revalidatePath('/game');
   return { success: true, data: data as QuestRow };
 }
@@ -133,13 +174,9 @@ export async function createQuestAction(formData: {
 // UPDATE QUEST ACTION
 // ---------------------------------------------------------------------------
 
-export async function updateQuestAction(formData: {
-  id: string;
-  title: string;
-  description?: string | null;
-  attribute: string;
-  difficulty: string;
-}): Promise<ActionResult<QuestRow>> {
+export async function updateQuestAction(
+  formData: UpdateQuestInput
+): Promise<ActionResult<QuestRow>> {
   const supabase = await createClient();
   const {
     data: { user },
@@ -153,23 +190,50 @@ export async function updateQuestAction(formData: {
     return { success: false, error: 'Quest ID is required.' };
   }
 
-  const validation = validateQuestInput(formData);
+  const validation = validateQuestInput({
+    title: formData.title,
+    description: formData.description,
+    attribute: formData.attribute,
+    difficulty: formData.difficulty,
+    effort: formData.effort,
+    challenge: formData.challenge,
+  });
+
   if (!validation.isValid || !validation.sanitized) {
     return { success: false, error: validation.error };
   }
 
-  const { title, description, attribute, difficulty } = validation.sanitized;
+  const { title, description, attribute, difficulty, effort, challenge } =
+    validation.sanitized;
 
-  // Update only safe quest fields belonging to this authenticated user.
-  // Prohibits completion and reward tampering.
+  const updatePayload: Record<string, unknown> = {
+    title,
+    description,
+    attribute,
+    difficulty,
+    effort,
+    challenge,
+  };
+
+  if (formData.scheduledDate !== undefined) {
+    updatePayload.scheduled_date = formData.scheduledDate || null;
+  }
+  if (formData.scheduledStartTime !== undefined) {
+    updatePayload.scheduled_start_time = formData.scheduledStartTime || null;
+  }
+  if (formData.estimatedMinutes !== undefined) {
+    updatePayload.estimated_minutes =
+      formData.estimatedMinutes && formData.estimatedMinutes > 0
+        ? formData.estimatedMinutes
+        : null;
+  }
+  if (formData.isMainQuest !== undefined) {
+    updatePayload.is_main_quest = Boolean(formData.isMainQuest);
+  }
+
   const { data, error } = await supabase
     .from('quests')
-    .update({
-      title,
-      description,
-      attribute,
-      difficulty,
-    })
+    .update(updatePayload)
     .eq('id', formData.id)
     .eq('user_id', user.id)
     .select()
@@ -180,7 +244,101 @@ export async function updateQuestAction(formData: {
   }
 
   revalidatePath('/game/quests');
+  revalidatePath('/game/today');
+  revalidatePath('/game/week');
   revalidatePath('/game');
+  return { success: true, data: data as QuestRow };
+}
+
+// ---------------------------------------------------------------------------
+// RESCHEDULE QUEST ACTION
+// ---------------------------------------------------------------------------
+
+export async function rescheduleQuestAction(
+  questId: string,
+  scheduledDate: string | null,
+  scheduledStartTime?: string | null
+): Promise<ActionResult<QuestRow>> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return { success: false, error: 'Unauthenticated. Please sign in.' };
+  }
+
+  if (!questId) {
+    return { success: false, error: 'Quest ID is required.' };
+  }
+
+  const payload: Record<string, unknown> = {
+    scheduled_date: scheduledDate || null,
+  };
+
+  if (scheduledStartTime !== undefined) {
+    payload.scheduled_start_time = scheduledStartTime || null;
+  }
+
+  // If unscheduling, also unmark main quest
+  if (!scheduledDate) {
+    payload.is_main_quest = false;
+  }
+
+  const { data, error } = await supabase
+    .from('quests')
+    .update(payload)
+    .eq('id', questId)
+    .eq('user_id', user.id)
+    .select()
+    .single();
+
+  if (error) {
+    return { success: false, error: error.message };
+  }
+
+  revalidatePath('/game/today');
+  revalidatePath('/game/week');
+  revalidatePath('/game/quests');
+  return { success: true, data: data as QuestRow };
+}
+
+// ---------------------------------------------------------------------------
+// SET MAIN QUEST ACTION
+// ---------------------------------------------------------------------------
+
+export async function setMainQuestAction(
+  questId: string,
+  isMainQuest: boolean
+): Promise<ActionResult<QuestRow>> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return { success: false, error: 'Unauthenticated. Please sign in.' };
+  }
+
+  if (!questId) {
+    return { success: false, error: 'Quest ID is required.' };
+  }
+
+  const { data, error } = await supabase
+    .from('quests')
+    .update({ is_main_quest: isMainQuest })
+    .eq('id', questId)
+    .eq('user_id', user.id)
+    .select()
+    .single();
+
+  if (error) {
+    return { success: false, error: error.message };
+  }
+
+  revalidatePath('/game/today');
+  revalidatePath('/game/week');
+  revalidatePath('/game/quests');
   return { success: true, data: data as QuestRow };
 }
 
@@ -213,6 +371,8 @@ export async function deleteQuestAction(id: string): Promise<ActionResult> {
   }
 
   revalidatePath('/game/quests');
+  revalidatePath('/game/today');
+  revalidatePath('/game/week');
   revalidatePath('/game');
   return { success: true };
 }
@@ -269,6 +429,8 @@ export async function completeQuestAction(
   };
 
   // Revalidate all game routes where progression is displayed
+  revalidatePath('/game/today');
+  revalidatePath('/game/week');
   revalidatePath('/game/quests');
   revalidatePath('/game');
   revalidatePath('/game/wayfarer');

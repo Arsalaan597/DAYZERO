@@ -33,7 +33,7 @@ export default function LoginPage() {
       return;
     }
 
-    router.push('/game');
+    router.push('/game/today');
     router.refresh();
   }
 

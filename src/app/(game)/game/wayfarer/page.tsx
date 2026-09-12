@@ -40,6 +40,7 @@ export default async function WayfarerPage() {
     gold: 0,
     streak: 0,
     last_active_date: null,
+    timezone: 'UTC',
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
   };

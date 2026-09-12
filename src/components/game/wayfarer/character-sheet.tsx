@@ -202,6 +202,14 @@ export function CharacterSheet({
                   : 'Awaiting first vow'}
               </p>
             </div>
+            <div>
+              <span className="text-xs tracking-widest text-ash uppercase">
+                Temporal Anchor
+              </span>
+              <p className="font-display text-sm text-parchment truncate max-w-[140px]">
+                {profile.timezone || 'UTC'}
+              </p>
+            </div>
           </div>
         </div>
       </section>
