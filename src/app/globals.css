@@ -1,26 +1,71 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/* ------------------------------------------------------------------ */
+/* DAYZERO – Design Tokens                                            */
+/* ------------------------------------------------------------------ */
+
+@theme {
+  /* ── Colors ────────────────────────────────────────────────────── */
+  --color-void: #0B0C0C;
+  --color-obsidian: #121413;
+  --color-stone: #1B1E1C;
+  --color-ash: #8B8D87;
+  --color-parchment: #E7DFC9;
+  --color-ember: #D97732;
+  --color-gold: #C6A15B;
+  --color-danger: #A94A42;
+
+  /* ── Fonts ─────────────────────────────────────────────────────── */
+  --font-display: "Cinzel", serif;
+  --font-body: "Inter", sans-serif;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+/* ------------------------------------------------------------------ */
+/* Base styles                                                         */
+/* ------------------------------------------------------------------ */
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  color-scheme: dark;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: var(--color-void);
+  color: var(--color-parchment);
+  font-family: var(--font-body);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ------------------------------------------------------------------ */
+/* Focus ring – ember-coloured for keyboard navigation visibility      */
+/* ------------------------------------------------------------------ */
+
+*:focus-visible {
+  outline: 2px solid var(--color-ember);
+  outline-offset: 2px;
+}
+
+/* ------------------------------------------------------------------ */
+/* Selection                                                           */
+/* ------------------------------------------------------------------ */
+
+::selection {
+  background-color: var(--color-ember);
+  color: var(--color-void);
+}
+
+/* ------------------------------------------------------------------ */
+/* Reduced motion preference                                           */
+/* ------------------------------------------------------------------ */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
