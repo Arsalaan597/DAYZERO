@@ -58,3 +58,24 @@ export interface InventoryRow {
   item_id: string;
   acquired_at: string;
 }
+
+export interface CompleteQuestRpcRow {
+  success: boolean;
+  quest_id: string;
+  xp_gained: number;
+  gold_gained: number;
+  attribute: 'intellect' | 'strength' | 'discipline' | 'wellness' | 'creativity';
+  attribute_gained: number;
+  new_attribute_value: number;
+  previous_level: number;
+  new_level: number;
+  leveled_up: boolean;
+  total_xp: number;
+  new_gold: number;
+  new_streak: number;
+  realm: 'academy' | 'wilds' | 'forge' | 'sanctuary' | 'atelier';
+  previous_realm_level: number;
+  new_realm_level: number;
+  realm_leveled_up: boolean;
+}
+

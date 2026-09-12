@@ -108,3 +108,43 @@ export interface LevelInfo {
   /** Progress through the current level as a 0-1 ratio. */
   progress: number;
 }
+
+// ---------------------------------------------------------------------------
+// Phase 2: Completion & Action Result Types
+// ---------------------------------------------------------------------------
+
+export interface QuestCompletionResult {
+  success: boolean;
+  questId: string;
+  xpGained: number;
+  goldGained: number;
+  attribute: Attribute;
+  attributeGained: number;
+  newAttributeValue: number;
+  previousLevel: number;
+  newLevel: number;
+  leveledUp: boolean;
+  totalXp: number;
+  newGold: number;
+  newStreak: number;
+  realm: Realm;
+  previousRealmLevel: number;
+  newRealmLevel: number;
+  realmLeveledUp: boolean;
+}
+
+export interface CreateQuestInput {
+  title: string;
+  description?: string | null;
+  attribute: Attribute;
+  difficulty: Difficulty;
+}
+
+export interface UpdateQuestInput {
+  id: string;
+  title: string;
+  description?: string | null;
+  attribute: Attribute;
+  difficulty: Difficulty;
+}
+
