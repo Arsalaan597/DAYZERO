@@ -4,32 +4,55 @@
 // DAYZERO – Wayfarer Character Sheet Component
 // ---------------------------------------------------------------------------
 // Atmospheric, parchment-and-stone etched codex sheet for the Wayfarer.
-// Replaces generic analytics cards with an immersive RPG character folio.
+// Features modular 2D layered avatar, equipped titles/mantles/crests,
+// and the ENTER THE VAULT primary CTA.
 // ---------------------------------------------------------------------------
 
+import Link from 'next/link';
 import { REALMS } from '@/config/game';
 import { formatDeterministicDate } from '@/lib/game/dates';
 import { getLevelFromTotalXp } from '@/lib/game/xp';
-import { Zeroflame } from '@/components/game/realm/zeroflame';
-import type { AttributesRow, ProfileRow, RealmProgressRow } from '@/types/database';
+import { WayfarerAvatar } from '@/components/game/avatar/wayfarer-avatar';
+import type { AttributesRow, ProfileRow, RealmProgressRow, EquippedCosmeticRow, VaultItemRow } from '@/types/database';
 import type { Realm } from '@/types/game';
 
 interface CharacterSheetProps {
   profile: ProfileRow;
   attributes: AttributesRow | null;
   realmProgress: RealmProgressRow | null;
+  equippedCosmetics?: EquippedCosmeticRow[];
+  vaultItems?: VaultItemRow[];
 }
 
 export function CharacterSheet({
   profile,
   attributes,
   realmProgress,
+  equippedCosmetics = [],
+  vaultItems = [],
 }: CharacterSheetProps) {
   const levelInfo = getLevelFromTotalXp(profile.xp);
   const progressPercent = Math.min(100, Math.round(levelInfo.progress * 100));
 
-  // Determine Title based on level
-  const wayfarerTitle =
+  // Build lookup map for vault items
+  const vaultItemsMap = new Map<string, VaultItemRow>();
+  vaultItems.forEach((item) => vaultItemsMap.set(item.id, item));
+
+  // Determine equipped items per category
+  const equippedMantleItem = equippedCosmetics.find((e) => e.category === 'mantle');
+  const equippedCrestItem = equippedCosmetics.find((e) => e.category === 'crest');
+  const equippedTitleItem = equippedCosmetics.find((e) => e.category === 'title');
+
+  const mantleVaultItem = equippedMantleItem ? vaultItemsMap.get(equippedMantleItem.vault_item_id) : null;
+  const crestVaultItem = equippedCrestItem ? vaultItemsMap.get(equippedCrestItem.vault_item_id) : null;
+  const titleVaultItem = equippedTitleItem ? vaultItemsMap.get(equippedTitleItem.vault_item_id) : null;
+
+  // Active tokens or defaults
+  const mantleToken = mantleVaultItem?.visual_token ?? null;
+  const crestToken = crestVaultItem?.visual_token ?? null;
+
+  // Fallback title based on level if no custom cosmetic title equipped
+  const fallbackLevelTitle =
     profile.level >= 10
       ? 'Architect of the Reborn'
       : profile.level >= 5
@@ -37,6 +60,8 @@ export function CharacterSheet({
       : profile.level >= 2
       ? 'Seeker of the Five Realms'
       : 'Initiate of the First Spark';
+
+  const activeTitle = titleVaultItem?.name ?? fallbackLevelTitle;
 
   // 5 Realm/Attribute mappings
   const attunements: Array<{
@@ -126,26 +151,35 @@ export function CharacterSheet({
       </div>
 
       {/* ------------------------------------------------------------------ */}
-      {/* Main Identity & Sigil Header Panel                                  */}
+      {/* Main Identity & Hero Avatar Header Panel                            */}
       {/* ------------------------------------------------------------------ */}
-      <section className="mt-8 grid gap-8 border border-ash/20 bg-stone/40 p-6 sm:grid-cols-12 sm:items-center">
-        {/* Left: Symbolic Sigil & Central Flame */}
-        <div className="flex flex-col items-center justify-center border-b border-ash/15 pb-6 sm:col-span-4 sm:border-r sm:border-b-0 sm:pb-0 sm:pr-6">
-          <div className="relative flex h-32 w-32 items-center justify-center rounded-full border border-ash/20 bg-obsidian/70 shadow-inner">
-            <Zeroflame streak={profile.streak} size="md" />
-            <div className="pointer-events-none absolute inset-0 rounded-full border border-dashed border-ash/20" />
+      <section className="mt-8 grid gap-8 border border-ash/20 bg-stone/40 p-6 sm:p-8 lg:grid-cols-12 lg:items-center">
+        {/* Left: Modular 2D Wayfarer Hero Avatar with Layered SVG Mantle & Crest */}
+        <div className="flex flex-col items-center justify-center border-b border-ash/15 pb-8 lg:col-span-6 lg:border-r lg:border-b-0 lg:pb-0 lg:pr-8">
+          <div className="relative flex items-center justify-center p-2">
+            <WayfarerAvatar
+              streak={profile.streak}
+              mantleToken={mantleToken}
+              crestToken={crestToken}
+              size="xl"
+            />
           </div>
-          <p className="mt-3 font-display text-xs tracking-widest text-parchment uppercase">
+          <p className="mt-4 font-display text-base tracking-[0.2em] text-parchment uppercase font-bold text-center">
             {profile.display_name}
           </p>
-          <span className="text-xs tracking-wider text-ash font-medium uppercase">
-            {wayfarerTitle}
+          <span className="mt-1 text-xs tracking-widest text-ember font-semibold uppercase font-display text-center">
+            {activeTitle}
           </span>
+          <div className="mt-3 flex flex-wrap items-center justify-center gap-2 border border-ash/15 bg-stone/70 px-3 py-1 text-[11px] tracking-wider text-ash uppercase">
+            <span>Mantle: <strong className="text-parchment font-normal">{mantleVaultItem?.name ?? 'Wanderer'}</strong></span>
+            <span className="text-ash/40">◆</span>
+            <span>Crest: <strong className="text-parchment font-normal">{crestVaultItem?.name ?? 'Spark'}</strong></span>
+          </div>
         </div>
 
-        {/* Right: Primary Folio Vitals */}
-        <div className="flex flex-col justify-center sm:col-span-8">
-          {/* Level & Title */}
+        {/* Right: Primary Folio Vitals & Vault CTA */}
+        <div className="flex flex-col justify-center lg:col-span-6">
+          {/* Level & Gold Vault */}
           <div className="flex flex-wrap items-baseline justify-between gap-2 border-b border-ash/15 pb-4">
             <div>
               <span className="text-xs tracking-[0.15em] text-ash uppercase">
@@ -162,7 +196,7 @@ export function CharacterSheet({
               <span className="text-xs tracking-[0.15em] text-gold uppercase">
                 Tribute Vault
               </span>
-              <p className="font-display text-xl tracking-wider text-gold">
+              <p className="font-display text-2xl tracking-wider text-gold font-semibold">
                 {profile.gold} <span className="text-xs text-gold/80">G</span>
               </p>
             </div>
@@ -183,7 +217,7 @@ export function CharacterSheet({
           </div>
 
           {/* Streak & Continuity Metrics */}
-          <div className="mt-5 grid grid-cols-2 gap-3 border-t border-ash/15 pt-4 text-xs">
+          <div className="mt-4 grid grid-cols-3 gap-2 border-t border-ash/15 pt-4 text-xs">
             <div>
               <span className="text-xs tracking-widest text-ash uppercase">
                 Flame Continuity
@@ -211,6 +245,25 @@ export function CharacterSheet({
               </p>
             </div>
           </div>
+
+          {/* Thematic Primary Vault CTA */}
+          <div className="mt-6 border-t border-ash/15 pt-4">
+            <Link
+              href="/game/vault"
+              className="flex w-full items-center justify-between border border-gold/40 bg-gradient-to-r from-gold/15 to-ember/15 px-4 py-3 text-gold transition-all hover:border-gold hover:bg-gold/25 focus:outline-none focus-visible:ring-2 focus-visible:ring-gold"
+            >
+              <div className="flex items-center gap-2">
+                <span className="text-base text-gold">🏛</span>
+                <span className="font-display text-xs tracking-[0.2em] font-semibold uppercase sm:text-sm">
+                  ENTER THE VAULT
+                </span>
+              </div>
+              <div className="flex items-center gap-1 font-display text-xs tracking-wider text-parchment">
+                <span>Armoury &amp; Relics</span>
+                <span className="text-gold">→</span>
+              </div>
+            </Link>
+          </div>
         </div>
       </section>
 
@@ -220,7 +273,7 @@ export function CharacterSheet({
       <div className="my-8 flex items-center justify-center gap-4 text-ash/30" aria-hidden="true">
         <div className="h-px flex-1 bg-ash/20" />
         <span className="font-display text-xs tracking-widest text-ash/80 uppercase">
-          ✦ Attunements & Ancestral Resonances ✦
+          ✦ Attunements &amp; Ancestral Resonances ✦
         </span>
         <div className="h-px flex-1 bg-ash/20" />
       </div>

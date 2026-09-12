@@ -100,7 +100,51 @@ export interface InventoryRow {
   id: string;
   user_id: string;
   item_id: string;
+  vault_item_id: string | null;
   acquired_at: string;
+}
+
+export interface VaultItemRow {
+  id: string;
+  item_key: string;
+  name: string;
+  description: string | null;
+  category: 'mantle' | 'crest' | 'title';
+  price_gold: number;
+  visual_token: string;
+  min_level: number | null;
+  req_attribute: 'intellect' | 'strength' | 'discipline' | 'wellness' | 'creativity' | null;
+  req_attribute_value: number | null;
+  is_active: boolean;
+  sort_order: number;
+  created_at: string;
+}
+
+export interface EquippedCosmeticRow {
+  user_id: string;
+  category: 'mantle' | 'crest' | 'title';
+  vault_item_id: string;
+  equipped_at: string;
+}
+
+export interface PurchaseVaultItemRpcRow {
+  success: boolean;
+  vault_item_id: string;
+  item_key: string;
+  name: string;
+  category: 'mantle' | 'crest' | 'title';
+  price_paid: number;
+  new_gold: number;
+  inventory_id: string;
+}
+
+export interface EquipVaultItemRpcRow {
+  success: boolean;
+  category: 'mantle' | 'crest' | 'title';
+  vault_item_id: string;
+  item_key: string;
+  visual_token: string;
+  name: string;
 }
 
 export interface CompleteQuestRpcRow {
@@ -122,3 +166,4 @@ export interface CompleteQuestRpcRow {
   new_realm_level: number;
   realm_leveled_up: boolean;
 }
+

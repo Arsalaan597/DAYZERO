@@ -27,6 +27,32 @@ export type Effort = 'light' | 'standard' | 'deep';
 /** Phase 5: Challenge bonus tiers */
 export type Challenge = 'routine' | 'challenging' | 'hard';
 
+/** Phase 6: Cosmetic categories */
+export type CosmeticCategory = 'mantle' | 'crest' | 'title';
+
+export interface VaultItem {
+  id: string;
+  itemKey: string;
+  name: string;
+  description: string | null;
+  category: CosmeticCategory;
+  priceGold: number;
+  visualToken: string;
+  minLevel: number | null;
+  reqAttribute: Attribute | null;
+  reqAttributeValue: number | null;
+  isActive: boolean;
+  sortOrder: number;
+  createdAt: string;
+}
+
+export interface EquippedCosmetic {
+  userId: string;
+  category: CosmeticCategory;
+  vaultItemId: string;
+  equippedAt: string;
+}
+
 // ---------------------------------------------------------------------------
 // Descriptive / UI types
 // ---------------------------------------------------------------------------

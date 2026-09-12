@@ -14,6 +14,16 @@ const NAV_ITEMS = [
   { href: '/game/quests', label: 'Quests' },
 ] as const;
 
+const MOBILE_NAV_ITEMS = [
+  { href: '/game/today', label: 'Today' },
+  { href: '/game/week', label: 'Week' },
+  { href: '/game', label: 'Realm' },
+  { href: '/game/wayfarer', label: 'Wayfarer' },
+  { href: '/game/vault', label: 'Vault' },
+  { href: '/game/quests', label: 'Quests' },
+] as const;
+
+
 export function HUD() {
   const pathname = usePathname();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -85,7 +95,7 @@ export function HUD() {
         >
           <nav aria-label="Mobile game navigation">
             <ul className="flex flex-col gap-1.5" role="list">
-              {NAV_ITEMS.map(({ href, label }) => {
+              {MOBILE_NAV_ITEMS.map(({ href, label }) => {
                 const isActive = pathname === href;
                 return (
                   <li key={href}>
