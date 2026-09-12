@@ -206,6 +206,42 @@ export interface LevelInfo {
 }
 
 // ---------------------------------------------------------------------------
+// Phase 7: Chronicle & Trial Types
+// ---------------------------------------------------------------------------
+
+export interface ActiveTrial {
+  id: string;
+  horizon: 'daily' | 'weekly';
+  title: string;
+  description: string;
+  criteriaType: string;
+  currentProgress: number;
+  targetCount: number;
+  isCompleted: boolean;
+  goldReward: number;
+  sortOrder: number;
+}
+
+export interface ChronicleInscription {
+  id: string;
+  title: string;
+  description: string;
+  criteriaType: string;
+  criteriaKey: string | null;
+  targetValue: number;
+  sortOrder: number;
+  earned: boolean;
+  earnedAt: string | null;
+}
+
+export interface ChronicleData {
+  inscriptions: ChronicleInscription[];
+  earnedCount: number;
+  totalCount: number;
+  latestEarned: { id: string; title: string; earnedAt: string } | null;
+}
+
+// ---------------------------------------------------------------------------
 // Completion & Action Result Types
 // ---------------------------------------------------------------------------
 
@@ -227,7 +263,11 @@ export interface QuestCompletionResult {
   previousRealmLevel: number;
   newRealmLevel: number;
   realmLeveledUp: boolean;
+  newAchievements?: Array<{ id: string; title: string }>;
+  completedChallenges?: Array<{ id: string; title: string; goldAwarded: number }>;
+  challengeGoldTotal?: number;
 }
+
 
 export interface CreateQuestInput {
   title: string;

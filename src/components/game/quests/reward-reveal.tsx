@@ -198,6 +198,64 @@ function RewardRevealContent({
             </div>
           </div>
 
+          {/* ---------------------------------------------------------------- */}
+          {/* Conditional 3: Inscriptions Inscribed (Achievements)             */}
+          {/* ---------------------------------------------------------------- */}
+          {result.newAchievements && result.newAchievements.length > 0 && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.55, duration: 0.3 }}
+              className="my-3 space-y-2"
+            >
+              {result.newAchievements.map((ach) => (
+                <div
+                  key={ach.id}
+                  className="border border-gold/40 bg-gold/10 px-3 py-2 text-center"
+                >
+                  <p className="font-display text-[9px] tracking-[0.25em] text-gold uppercase">
+                    ✦ Inscription Inscribed ✦
+                  </p>
+                  <p className="mt-0.5 font-display text-sm tracking-wider text-parchment uppercase">
+                    {ach.title}
+                  </p>
+                </div>
+              ))}
+            </motion.div>
+          )}
+
+          {/* ---------------------------------------------------------------- */}
+          {/* Conditional 4: Trials Fulfilled (Challenges)                     */}
+          {/* ---------------------------------------------------------------- */}
+          {result.completedChallenges && result.completedChallenges.length > 0 && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.65, duration: 0.3 }}
+              className="my-3 space-y-2"
+            >
+              {result.completedChallenges.map((chal) => (
+                <div
+                  key={chal.id}
+                  className="border border-ember/50 bg-ember/10 px-3 py-2 flex items-center justify-between"
+                >
+                  <div className="text-left">
+                    <p className="font-display text-[9px] tracking-[0.25em] text-ember uppercase">
+                      ✦ Trial Fulfilled ✦
+                    </p>
+                    <p className="mt-0.5 font-display text-xs tracking-wider text-parchment uppercase">
+                      {chal.title}
+                    </p>
+                  </div>
+                  <span className="font-display text-xs text-gold tracking-wider font-semibold">
+                    +{chal.goldAwarded} G
+                  </span>
+
+                </div>
+              ))}
+            </motion.div>
+          )}
+
           {/* New Totals Row */}
           <div className="mb-5 flex justify-around text-[11px] tracking-wider text-ash/80">
             <span>Total XP: {result.totalXp}</span>
@@ -214,3 +272,4 @@ function RewardRevealContent({
     </AnimatePresence>
   );
 }
+

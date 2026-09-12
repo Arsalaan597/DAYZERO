@@ -426,6 +426,14 @@ export async function completeQuestAction(
     previousRealmLevel: rpcResult.previous_realm_level,
     newRealmLevel: rpcResult.new_realm_level,
     realmLeveledUp: rpcResult.realm_leveled_up,
+    newAchievements: rpcResult.new_achievements,
+    completedChallenges: rpcResult.completed_challenges?.map((c) => ({
+      id: c.id,
+      title: c.title,
+      goldAwarded: c.gold_awarded ?? c.gold_reward ?? 0,
+    })),
+    challengeGoldTotal: rpcResult.challenge_gold_total,
+
   };
 
   // Revalidate all game routes where progression is displayed
@@ -434,6 +442,8 @@ export async function completeQuestAction(
   revalidatePath('/game/quests');
   revalidatePath('/game');
   revalidatePath('/game/wayfarer');
+  revalidatePath('/game/chronicle');
 
   return { success: true, data: formattedResult };
 }
+

@@ -19,9 +19,11 @@ const MOBILE_NAV_ITEMS = [
   { href: '/game/week', label: 'Week' },
   { href: '/game', label: 'Realm' },
   { href: '/game/wayfarer', label: 'Wayfarer' },
+  { href: '/game/chronicle', label: 'Chronicle' },
   { href: '/game/vault', label: 'Vault' },
   { href: '/game/quests', label: 'Quests' },
 ] as const;
+
 
 
 export function HUD() {

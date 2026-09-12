@@ -14,7 +14,7 @@ import { formatDeterministicDate } from '@/lib/game/dates';
 import { getLevelFromTotalXp } from '@/lib/game/xp';
 import { WayfarerAvatar } from '@/components/game/avatar/wayfarer-avatar';
 import type { AttributesRow, ProfileRow, RealmProgressRow, EquippedCosmeticRow, VaultItemRow } from '@/types/database';
-import type { Realm } from '@/types/game';
+import type { Realm, ChronicleData } from '@/types/game';
 
 interface CharacterSheetProps {
   profile: ProfileRow;
@@ -22,7 +22,9 @@ interface CharacterSheetProps {
   realmProgress: RealmProgressRow | null;
   equippedCosmetics?: EquippedCosmeticRow[];
   vaultItems?: VaultItemRow[];
+  chronicle?: ChronicleData | null;
 }
+
 
 export function CharacterSheet({
   profile,
@@ -30,7 +32,9 @@ export function CharacterSheet({
   realmProgress,
   equippedCosmetics = [],
   vaultItems = [],
+  chronicle = null,
 }: CharacterSheetProps) {
+
   const levelInfo = getLevelFromTotalXp(profile.xp);
   const progressPercent = Math.min(100, Math.round(levelInfo.progress * 100));
 
@@ -264,8 +268,35 @@ export function CharacterSheet({
               </div>
             </Link>
           </div>
+
+          {/* Chronicle Summary Panel */}
+          {chronicle && (
+            <div className="mt-4 border border-ash/15 bg-obsidian/60 p-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <span className="text-gold text-xs">✦</span>
+                  <span className="font-display text-xs tracking-wider text-parchment uppercase">
+                    Chronicle: {chronicle.earnedCount} / {chronicle.totalCount} Inscriptions
+                  </span>
+                </div>
+                {chronicle.latestEarned && (
+                  <span className="text-[10px] text-ash/70 font-mono hidden sm:inline truncate max-w-[130px]">
+                    {chronicle.latestEarned.title}
+                  </span>
+                )}
+              </div>
+              <Link
+                href="/game/chronicle"
+                className="mt-3 flex w-full items-center justify-between border border-ash/25 bg-stone/30 px-3.5 py-2 text-xs text-parchment hover:border-gold/50 hover:text-gold transition-colors font-display tracking-wider uppercase focus:outline-none focus-visible:ring-1 focus-visible:ring-gold"
+              >
+                <span>OPEN THE CHRONICLE</span>
+                <span>→</span>
+              </Link>
+            </div>
+          )}
         </div>
       </section>
+
 
       {/* ------------------------------------------------------------------ */}
       {/* Ancient Ornamental Divider                                         */}

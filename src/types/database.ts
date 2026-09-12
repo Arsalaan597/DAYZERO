@@ -136,6 +136,7 @@ export interface PurchaseVaultItemRpcRow {
   price_paid: number;
   new_gold: number;
   inventory_id: string;
+  new_achievements?: Array<{ id: string; title: string }>;
 }
 
 export interface EquipVaultItemRpcRow {
@@ -145,6 +146,92 @@ export interface EquipVaultItemRpcRow {
   item_key: string;
   visual_token: string;
   name: string;
+}
+
+export interface AchievementRow {
+  id: string;
+  title: string;
+  description: string;
+  criteria_type:
+    | 'TOTAL_COMPLETIONS'
+    | 'MAIN_QUEST_COMPLETIONS'
+    | 'STREAK'
+    | 'LEVEL'
+    | 'ANY_REALM_TIER'
+    | 'ROUTINE_COMPLETIONS'
+    | 'ANY_ATTRIBUTE_VALUE'
+    | 'VAULT_PURCHASES';
+  criteria_key: string | null;
+  target_value: number;
+  sort_order: number;
+  is_active: boolean;
+  created_at: string;
+}
+
+export interface UserAchievementRow {
+  user_id: string;
+  achievement_id: string;
+  earned_at: string;
+}
+
+export interface ChallengeRow {
+  id: string;
+  horizon: 'daily' | 'weekly';
+  title: string;
+  description: string;
+  criteria_type:
+    | 'PLANNED_ACTIVITY_COMPLETIONS'
+    | 'ROUTINE_COMPLETIONS'
+    | 'MAIN_QUEST_COMPLETIONS';
+  target_count: number;
+  gold_reward: number;
+  sort_order: number;
+  is_active: boolean;
+  created_at: string;
+}
+
+export interface UserChallengeCompletionRow {
+  id: string;
+  user_id: string;
+  challenge_id: string;
+  period_start: string;
+  completed_at: string;
+  gold_awarded: number;
+}
+
+export interface ActiveTrialRpcRow {
+  id: string;
+  horizon: 'daily' | 'weekly';
+  title: string;
+  description: string;
+  criteria_type:
+    | 'PLANNED_ACTIVITY_COMPLETIONS'
+    | 'ROUTINE_COMPLETIONS'
+    | 'MAIN_QUEST_COMPLETIONS';
+  current_progress: number;
+  target_count: number;
+  is_completed: boolean;
+  gold_reward: number;
+  sort_order: number;
+}
+
+export interface ChronicleInscriptionItem {
+  id: string;
+  title: string;
+  description: string;
+  criteria_type: string;
+  criteria_key: string | null;
+  target_value: number;
+  sort_order: number;
+  earned: boolean;
+  earned_at: string | null;
+}
+
+export interface ChronicleDataRpcRow {
+  inscriptions: ChronicleInscriptionItem[];
+  earned_count: number;
+  total_count: number;
+  latest_earned: { id: string; title: string; earned_at: string } | null;
 }
 
 export interface CompleteQuestRpcRow {
@@ -165,5 +252,9 @@ export interface CompleteQuestRpcRow {
   previous_realm_level: number;
   new_realm_level: number;
   realm_leveled_up: boolean;
+  new_achievements?: Array<{ id: string; title: string }>;
+  completed_challenges?: Array<{ id: string; title: string; gold_awarded?: number; gold_reward?: number }>;
+  challenge_gold_total?: number;
 }
+
 

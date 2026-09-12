@@ -282,12 +282,22 @@ export async function completeRoutineInstanceAction(
     previousRealmLevel: rpcResult.previous_realm_level,
     newRealmLevel: rpcResult.new_realm_level,
     realmLeveledUp: rpcResult.realm_leveled_up,
+    newAchievements: rpcResult.new_achievements,
+    completedChallenges: rpcResult.completed_challenges?.map((c) => ({
+      id: c.id,
+      title: c.title,
+      goldAwarded: c.gold_awarded ?? c.gold_reward ?? 0,
+    })),
+    challengeGoldTotal: rpcResult.challenge_gold_total,
+
   };
 
   revalidatePath('/game/today');
   revalidatePath('/game/week');
   revalidatePath('/game');
   revalidatePath('/game/wayfarer');
+  revalidatePath('/game/chronicle');
 
   return { success: true, data: formattedResult };
 }
+

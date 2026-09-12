@@ -1,10 +1,11 @@
-﻿// ---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
 // DAYZERO – /game/wayfarer Page (Server Component)
 // ---------------------------------------------------------------------------
 
 import { redirect } from 'next/navigation';
 import { CharacterSheet } from '@/components/game/wayfarer/character-sheet';
 import { createClient } from '@/lib/supabase/server';
+import { getChronicleDataAction } from '@/lib/actions/chronicle';
 import type { AttributesRow, ProfileRow, RealmProgressRow, EquippedCosmeticRow, VaultItemRow } from '@/types/database';
 
 export const metadata = {
@@ -22,12 +23,13 @@ export default async function WayfarerPage() {
     redirect('/login');
   }
 
-  const [profileRes, attrsRes, realmRes, equippedRes, vaultItemsRes] = await Promise.all([
+  const [profileRes, attrsRes, realmRes, equippedRes, vaultItemsRes, chronicleRes] = await Promise.all([
     supabase.from('profiles').select('*').eq('id', user.id).single(),
     supabase.from('attributes').select('*').eq('user_id', user.id).maybeSingle(),
     supabase.from('realm_progress').select('*').eq('user_id', user.id).maybeSingle(),
     supabase.from('equipped_cosmetics').select('*').eq('user_id', user.id),
     supabase.from('vault_items').select('*'),
+    getChronicleDataAction(),
   ]);
 
   const profile = profileRes.data as ProfileRow | null;
@@ -35,6 +37,7 @@ export default async function WayfarerPage() {
   const realmProgress = realmRes.data as RealmProgressRow | null;
   const equipped = (equippedRes.data as EquippedCosmeticRow[] | null) ?? [];
   const vaultItems = (vaultItemsRes.data as VaultItemRow[] | null) ?? [];
+  const chronicle = chronicleRes.data ?? null;
 
   const safeProfile: ProfileRow = profile ?? {
     id: user.id,
@@ -57,7 +60,9 @@ export default async function WayfarerPage() {
         realmProgress={realmProgress}
         equippedCosmetics={equipped}
         vaultItems={vaultItems}
+        chronicle={chronicle}
       />
     </main>
   );
 }
+

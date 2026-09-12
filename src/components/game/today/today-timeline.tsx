@@ -4,7 +4,7 @@
 // DAYZERO – Today Run Timeline Component
 // ---------------------------------------------------------------------------
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Zeroflame } from '@/components/game/realm/zeroflame';
@@ -13,8 +13,10 @@ import { RewardReveal } from '@/components/game/quests/reward-reveal';
 import { completeRoutineInstanceAction } from '@/lib/actions/routines';
 import { completeQuestAction } from '@/lib/actions/quests';
 import { updateTimezoneAction } from '@/lib/actions/profile';
+import { getActiveTrialsAction } from '@/lib/actions/chronicle';
 import { Button } from '@/components/ui/button';
-import type { TodayActivity, QuestCompletionResult } from '@/types/game';
+import { ActiveTrialsWidget } from '@/components/game/today/active-trials-widget';
+import type { TodayActivity, QuestCompletionResult, ActiveTrial } from '@/types/game';
 import type { ProfileRow } from '@/types/database';
 
 interface TodayTimelineProps {
@@ -22,6 +24,7 @@ interface TodayTimelineProps {
   localToday: string;
   userTz: string;
   initialActivities: TodayActivity[];
+  initialTrials?: ActiveTrial[];
 }
 
 export function TodayTimeline({
@@ -29,10 +32,25 @@ export function TodayTimeline({
   localToday,
   userTz,
   initialActivities,
+  initialTrials = [],
 }: TodayTimelineProps) {
   const router = useRouter();
   const [activities, setActivities] = useState<TodayActivity[]>(initialActivities);
   const [profile, setProfile] = useState<ProfileRow | null>(initialProfile);
+  const [trials, setTrials] = useState<ActiveTrial[]>(initialTrials);
+
+  useEffect(() => {
+    setTrials(initialTrials);
+  }, [initialTrials]);
+
+  useEffect(() => {
+    setActivities(initialActivities);
+  }, [initialActivities]);
+
+  useEffect(() => {
+    setProfile(initialProfile);
+  }, [initialProfile]);
+
   const [revealResult, setRevealResult] = useState<QuestCompletionResult | null>(null);
   const [pendingId, setPendingId] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -112,8 +130,21 @@ export function TodayTimeline({
         });
       }
 
+      const freshTrialsRes = await getActiveTrialsAction();
+      if (freshTrialsRes.success && freshTrialsRes.data) {
+        setTrials(freshTrialsRes.data);
+      } else if (completionData.completedChallenges && completionData.completedChallenges.length > 0) {
+        const completedIds = new Set(completionData.completedChallenges.map((c) => c.id));
+        setTrials((prev) =>
+          prev.map((t) =>
+            completedIds.has(t.id) ? { ...t, isCompleted: true, currentProgress: t.targetCount } : t
+          )
+        );
+      }
+
       // Authoritative reward reveal popup
       setRevealResult(completionData);
+
     } catch (err: unknown) {
       setErrorMessage(err instanceof Error ? err.message : 'An error occurred during completion.');
     } finally {
@@ -203,7 +234,15 @@ export function TodayTimeline({
         </div>
       )}
 
+      {/* Compact Active Trials Presentation */}
+      {trials && trials.length > 0 && (
+        <div className="mt-6">
+          <ActiveTrialsWidget trials={trials} />
+        </div>
+      )}
+
       {/* Empty State */}
+
       {totalCount === 0 ? (
         <div className="my-12 flex flex-col items-center justify-center border border-dashed border-ash/20 bg-obsidian/40 p-8 text-center sm:p-12">
           <div className="text-ember text-2xl">✧</div>

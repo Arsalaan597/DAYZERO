@@ -1,4 +1,4 @@
-﻿'use server';
+'use server';
 
 // ---------------------------------------------------------------------------
 // DAYZERO – Vault & Cosmetic Server Actions
@@ -57,6 +57,7 @@ export async function purchaseVaultItemAction(
 
   revalidatePath('/game/vault');
   revalidatePath('/game/wayfarer');
+  revalidatePath('/game/chronicle');
   return { success: true, data: data as PurchaseVaultItemRpcRow };
 }
 
